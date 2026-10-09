@@ -1,0 +1,92 @@
+SAMPLE EMAILS: fictional recipients and papers, for layout review only. Never sent.
+
+===== initial_a: Mechanical engineering, prosthetics/biomedical devices, robotics labs =====
+Subject: Question about your 2025 paper on low-cost prosthetic limbs
+
+Dear Professor Rivera,
+
+I'm Ishaan Ashok, a junior at American High School in Fremont. I read your 2025 paper "Adaptive Socket Interfaces for Low-Cost Prosthetic Limbs" on a compliant socket that adapts to residual-limb volume change.
+
+Because our ReStep design is also a low-cost adjustable limb, I wondered how your interface handles fit across different users.
+
+I founded Project ReStep, a 501(c)(3) building low-cost 3D-printed prosthetics; our modular design costs $30 per unit versus about $1,750. As Mechanical Lead of my FIRST Tech Challenge team, I designed our chassis, shooter, and intake in Onshape.
+
+Would you or someone in your lab be open to a 15-minute call about whether I could help with CAD or fixture design, under a grad student's guidance?
+
+I can volunteer about 10 hours a week now and full-time from June 8 to August 14. I'm 16 and understand minors-in-lab rules, so I'm happy to start with computational or design work. I'm in Fremont and can commute to Stanford.
+
+My resume is attached. Thank you for your time.
+
+Ishaan Ashok
+Junior, American High School (Fremont, CA)
+ishaan.ashok123@gmail.com
+
+[172 words | lint PASS]
+
+===== initial_b: Electrical engineering, embedded systems, sensing, environmental monitoring labs =====
+Subject: High school student interested in your turbidity sensing work
+
+Dear Dr. Nair,
+
+I'm Ishaan Ashok, a junior at American High School in Fremont. I read your 2025 paper "Low-Power Turbidity Sensing for Distributed Water Monitoring" on an optical node with on-device calibration.
+
+I built a turbidity sensor for stormwater, so I am curious how your calibration holds up between deployments.
+
+I co-founded Project LUNA, a low-cost turbidity sensor for stormwater monitoring that we piloted in Oakland, San Jose, and Concord. I built AI smart glasses that use an ESP32-CAM and a classifier model to analyze live video.
+
+Would you be open to a 15-minute call about whether I could help with sensor firmware? I'd also welcome your PI's guidance.
+
+I can volunteer about 10 hours a week now and full-time from June 8 to August 14, working remotely or in person for a week or more. I'm 16 and understand minors-in-lab rules, so I'm happy to start with computational or design work.
+
+My resume is attached. Thank you for your time.
+
+Ishaan Ashok
+Junior, American High School (Fremont, CA)
+ishaan.ashok123@gmail.com
+
+[162 words | lint PASS]
+
+===== initial_c: Computer engineering, machine learning, computer vision, lab-software labs =====
+Subject: HS student interested in your defect detection — could I help with a baseline ML experiment?
+
+Hi Sam,
+
+I'm Ishaan Ashok, a junior at American High School in Fremont. I read your 2026 paper "Few-Shot Defect Detection for Small Manufacturing Datasets" on lightweight vision models with few labels.
+
+I built a classifier-based vision project on an ESP32-CAM, so I would like to learn how you chose your baselines.
+
+I built an open-source machine learning tool, used live in competition, that recommends FIRST Tech Challenge alliance partners. As an AI engineer intern at Innoflexion, I built Python agents that extract structured information from unstructured documents.
+
+Would you be open to a 15-minute call about whether I could help with a baseline ML experiment? I'd also welcome your PI's guidance.
+
+I can volunteer about 10 hours a week now and full-time from June 8 to August 14, working remotely or in person for a week or more. I'm 16 and understand minors-in-lab rules, so I'm happy to start with computational or design work.
+
+My resume is attached. Thank you for your time.
+
+Ishaan Ashok
+Junior, American High School (Fremont, CA)
+ishaan.ashok123@gmail.com
+
+[164 words | lint PASS]
+
+===== followup_1: First follow-up, 2-4 sentences, one new true piece of value =====
+Dear Professor Rivera,
+
+I wanted to follow up on my note below and share one more relevant detail. Project LUNA placed in the top 15 of roughly 300 teams internationally at the Youth Business Venture Competition, where I presented to judges at Stanford. I'd still be glad to help with CAD or fixture design if there's a fit, and I completely understand if the timing isn't right.
+
+Ishaan Ashok
+Junior, American High School (Fremont, CA)
+ishaan.ashok123@gmail.com
+
+[lint PASS]
+
+===== followup_2: Final follow-up, 1-2 sentences =====
+Dear Professor Rivera,
+
+One last brief follow-up: if anyone in your group could use help with CAD or fixture design this year or next summer, I'd be grateful to hear. Either way, thank you for your time.
+
+Ishaan Ashok
+Junior, American High School (Fremont, CA)
+ishaan.ashok123@gmail.com
+
+[lint PASS]

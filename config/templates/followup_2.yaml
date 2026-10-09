@@ -1,0 +1,19 @@
+# Follow-up 2 (final): 10-14 business days after FU1, same thread. Gracious close; nothing after this.
+id: followup_2
+version: 1
+kind: fu2
+description: Final follow-up, 1-2 sentences
+skeleton: |
+  {{greeting}}
+
+  One last brief follow-up: if anyone in your group could use help with {{task}} this year or next summer, I'd be grateful to hear. Either way, thank you for your time.
+llm_slots: []
+choice_slots: [task]
+limits: {}
+fixed_options:
+  greeting:
+    professor: "Dear Professor {last},"
+    doctor: "Dear Dr. {last},"
+    informal_grad: "Hi {first},"
+    formal_grad: "Dear {first} {last},"
+subject_formulas: {}

@@ -1,0 +1,11 @@
+labreach_data/
+data/private/*
+!data/private/.gitkeep
+*.db
+out/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.venv/
+*.egg-info/

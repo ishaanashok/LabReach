@@ -1,0 +1,20 @@
+# Follow-up 1: sent as a reply in the SAME thread, 7-10 business days after the initial email.
+# Adds one new TRUE fact that was not used in the initial email. Links only if on the allowlist (none by default).
+id: followup_1
+version: 1
+kind: fu1
+description: First follow-up, 2-4 sentences, one new true piece of value
+skeleton: |
+  {{greeting}}
+
+  I wanted to follow up on my note below and share one more relevant detail. {{new_value}} I'd still be glad to help with {{task}} if there's a fit, and I completely understand if the timing isn't right.
+llm_slots: []
+choice_slots: [value_fact_id, task]
+limits: {}
+fixed_options:
+  greeting:
+    professor: "Dear Professor {last},"
+    doctor: "Dear Dr. {last},"
+    informal_grad: "Hi {first},"
+    formal_grad: "Dear {first} {last},"
+subject_formulas: {}

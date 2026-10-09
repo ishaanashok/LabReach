@@ -1,0 +1,45 @@
+# Variant A: mechanical / prosthetics / robotics.  LOCKED once approved (see config/templates/LOCK.json).
+id: initial_a
+version: 1
+kind: initial
+description: Mechanical engineering, prosthetics/biomedical devices, robotics labs
+# Skeleton text is fixed. {{slots}} are filled by code; only p1 and p2 are model-written.
+skeleton: |
+  {{greeting}}
+
+  I'm {{student_name}}, a {{grade}} at {{school}} in {{school_city}}. {{p1}}
+
+  {{p2}}
+
+  {{credentials}}
+
+  {{ask}}
+
+  {{logistics}}
+
+  My resume is attached. Thank you for your time.
+llm_slots: [p1, p2]            # written by the drafting call, then verified against stored sources
+choice_slots: [credential_fact_ids, task, subject_formula, subject_topic, subject_year]
+limits: {p1_max_words: 28, p2_max_words: 26}
+fixed_options:
+  greeting:
+    professor: "Dear Professor {last},"
+    doctor: "Dear Dr. {last},"
+    informal_grad: "Hi {first},"
+    formal_grad: "Dear {first} {last},"
+  ask:
+    pi: "Would you or someone in your lab be open to a 15-minute call about whether I could help with {task}, under a grad student's guidance?"
+    junior: "Would you be open to a 15-minute call about whether I could help with {task}? I'd also welcome your PI's guidance."
+  logistics_local: "I can volunteer about {hours} hours a week now and full-time from {start} to {end}. I'm {age} and understand minors-in-lab rules, so I'm happy to start with computational or design work. I'm in Fremont and can commute to {campus}."
+  logistics_remote: "I can volunteer about {hours} hours a week now and full-time from {start} to {end}, working remotely or in person for a week or more. I'm {age} and understand minors-in-lab rules, so I'm happy to start with computational or design work."
+subject_formulas:
+  S1: "Question about your {year} paper on {topic}"
+  S2: "High school student interested in your {topic} work"
+  S3: "Junior with prosthetics and robotics experience — could I help on {topic}?"
+  S4: "HS student interested in your {topic} — could I help with {task}?"
+credential_pool: [F_RESTEP, F_FTC_CAD, F_FTC_AWARD, F_LUNA, F_GLASSES]
+task_pool:
+  - CAD or fixture design
+  - 3D-printing and prototyping work
+  - data cleaning
+  - a literature review

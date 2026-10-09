@@ -1,0 +1,102 @@
+# LabReach settings. Safe defaults; nothing here sends mail by itself.
+mode: dry_run                    # live requires LABREACH_MODE=live in the environment AND `labreach approve-pilot`
+timezone: America/Los_Angeles    # student's local timezone
+
+student:
+  full_name: "Ishaan Ashok"
+  school: "American High School"
+  school_city: "Fremont"
+  grade: "junior"
+  gmail: "ishaan.ashok123@gmail.com"
+  # born: lives in data/private/contact.yaml (gitignored); drives "I'm 16" / "I'm 17" in the logistics line
+  school_year_hours_per_week: 10
+  summer_start: "2027-06-08"
+  summer_end: "2027-08-14"
+  unpaid_ok: true
+  resume_pdf: "data/private/Ishaan_Ashok_Resume.pdf"
+  resume_attachment_name: "Ishaan_Ashok_Resume.pdf"
+
+caps:
+  daily_initial_first_two_weeks: 5
+  daily_initial_after: 10        # hard ceiling is 10 regardless of this value
+  per_university_per_day: 3
+  per_department_per_day: 1
+  pilot_size: 5
+  send_jitter_minutes: [5, 40]
+
+followups:
+  fu1_business_days: [7, 10]
+  fu2_business_days: [10, 14]
+
+send_window:
+  weekdays: [Tuesday, Wednesday, Thursday]
+  start_hour: 8
+  end_hour: 10                   # recipient-local, exclusive of 10:00
+  blackout_ranges:               # inclusive, MM-DD
+    - ["12-12", "01-05"]
+  thanksgiving_week: true
+  university_blackouts: {}       # e.g. {"Stanford University": [["03-23", "03-27"]]}
+
+limits:
+  max_claude_calls_per_day: 60
+  max_attachments: 2
+  max_attachment_bytes: 2000000
+  bounce_rate_threshold: 0.15
+  bounce_window: 20
+  claim_failure_streak: 3
+  ngram_overlap_threshold: 0.40
+  ngram_overlap_days: 30
+  min_fit_score: 5
+  target_queue_size: 30
+
+fetch:
+  user_agent: "LabReachBot/0.1 (student research outreach; contact ishaan.ashok123@gmail.com)"
+  min_delay_seconds: 3
+  max_delay_seconds: 5
+
+# Initial emails contain NO links (the resume carries them). Follow-ups may use these hosts only.
+link_allowlist:
+  - github.com/ishaanashok
+
+# Domains an official email address may come from.
+email_domain_allowlist:
+  - stanford.edu
+  - berkeley.edu
+  - sjsu.edu
+  - scu.edu
+  - ucsf.edu
+  - ucsc.edu
+  - ucdavis.edu
+  - mit.edu
+  - caltech.edu
+  - cmu.edu
+  - gatech.edu
+  - umich.edu
+  - illinois.edu
+  - utexas.edu
+  - purdue.edu
+  - washington.edu
+  - ucla.edu
+  - ucsd.edu
+  - cornell.edu
+
+institutions:   # priority order; local first
+  - {name: "Stanford University", tz: America/Los_Angeles, local: true, campus: "Stanford"}
+  - {name: "University of California, Berkeley", tz: America/Los_Angeles, local: true, campus: "Berkeley"}
+  - {name: "San Jose State University", tz: America/Los_Angeles, local: true, campus: "San Jose State"}
+  - {name: "Santa Clara University", tz: America/Los_Angeles, local: true, campus: "Santa Clara"}
+  - {name: "UCSF", tz: America/Los_Angeles, local: true, campus: "UCSF"}
+  - {name: "University of California, Santa Cruz", tz: America/Los_Angeles, local: true, campus: "Santa Cruz"}
+  - {name: "University of California, Davis", tz: America/Los_Angeles, local: true, campus: "Davis"}
+  - {name: "Massachusetts Institute of Technology", tz: America/New_York, local: false}
+  - {name: "California Institute of Technology", tz: America/Los_Angeles, local: false}
+  - {name: "Carnegie Mellon University", tz: America/New_York, local: false}
+  - {name: "Georgia Institute of Technology", tz: America/New_York, local: false}
+  - {name: "University of Michigan", tz: America/Detroit, local: false}
+  - {name: "University of Illinois Urbana-Champaign", tz: America/Chicago, local: false}
+  - {name: "University of Texas at Austin", tz: America/Chicago, local: false}
+  - {name: "Purdue University", tz: America/Indiana/Indianapolis, local: false}
+  - {name: "University of Washington", tz: America/Los_Angeles, local: false}
+  - {name: "University of California, Los Angeles", tz: America/Los_Angeles, local: false}
+  - {name: "University of California, San Diego", tz: America/Los_Angeles, local: false}
+  - {name: "Cornell University", tz: America/New_York, local: false}

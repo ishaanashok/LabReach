@@ -1,0 +1,123 @@
+# Approved-facts file. Emails may cite ONLY these facts, using ONLY the email_phrase wording.
+# Every fact traces to a resume line (Ishaan_CV_Sept26). Nothing here is added from outside the resume.
+# Approve once with: labreach profile approve   (stores a hash; any later edit un-approves it)
+version: 1
+name: Ishaan Ashok
+school: American High School
+city: Fremont
+grade: junior
+gmail: ishaan.ashok123@gmail.com
+
+# Words the resume does not support; the linter rejects them in any email.
+banned_claims: [published, publication, publications, peer-reviewed, expert, world-class, experienced researcher]
+
+facts:
+  - id: F_RESTEP
+    category: nonprofit
+    resume_line: "Project ReStep: founded a 501(c)(3); modular one-size-fits-all prosthetic cutting per-unit cost from ~$1,750 to $30; 3D-printed carbon fiber"
+    email_phrase: "I founded Project ReStep, a 501(c)(3) building low-cost 3D-printed prosthetics; our modular design costs $30 per unit versus about $1,750."
+    tags: [mechanical, prosthetics, biomedical, cad]
+    numbers: ["501(c)(3)", "$30", "$1,750", "3D"]
+
+  - id: F_RESTEP_INDIA
+    category: nonprofit
+    resume_line: "Project ReStep: distributing units at no cost to underserved communities in India, currently working with the state government there (wording per Ishaan's parent; Tamil Nadu intentionally omitted)"
+    email_phrase: "Project ReStep is giving prosthetics at no cost to underserved communities in India, and we are currently working with the state government there."
+    followup_phrase: "Project ReStep is now giving prosthetics at no cost to underserved communities in India, working with the state government there."
+    tags: [prosthetics, biomedical, outreach]
+    numbers: []
+
+  - id: F_LUNA
+    category: project
+    resume_line: "Project LUNA: co-founded; low-cost turbidity sensor for stormwater monitoring; piloted in Oakland, San Jose, Concord"
+    email_phrase: "I co-founded Project LUNA, a low-cost turbidity sensor for stormwater monitoring that we piloted in Oakland, San Jose, and Concord."
+    tags: [sensors, embedded, environmental, electrical]
+    numbers: []
+
+  - id: F_LUNA_COST
+    category: project
+    resume_line: "Project LUNA: offers a ~$30K alternative to systems that can cost cities up to $6M"
+    email_phrase: "Our LUNA sensor offers a roughly $30K alternative to systems that can cost cities up to $6M."
+    followup_phrase: "Our LUNA turbidity sensor offers a roughly $30K alternative to systems that can cost cities up to $6M."
+    tags: [sensors, environmental]
+    numbers: ["$30K", "$6M"]
+
+  - id: F_LUNA_IEEE
+    category: project
+    resume_line: "Project LUNA: presented research findings at an IEEE conference"
+    email_phrase: "I presented our LUNA research findings at an IEEE conference."
+    followup_phrase: "I presented our LUNA turbidity-sensor research findings at an IEEE conference."
+    tags: [sensors, environmental, research]
+    numbers: ["IEEE"]
+
+  - id: F_YBVC
+    category: award
+    resume_line: "Youth Business Venture Competition (Aug 2026): top 15 internationally out of roughly 300 teams; presented Project LUNA to judges at Stanford"
+    email_phrase: "Project LUNA placed in the top 15 of roughly 300 teams internationally at the Youth Business Venture Competition."
+    followup_phrase: "Project LUNA placed in the top 15 of roughly 300 teams internationally at the Youth Business Venture Competition, where I presented to judges at Stanford."
+    tags: [sensors, environmental, outreach]
+    numbers: ["15", "300"]
+
+  - id: F_FTC_CAD
+    category: robotics
+    resume_line: "FTC team: Mechanical Lead/Captain; designed chassis, shooter, intake in Onshape; led building, iteration, testing across a full season"
+    email_phrase: "As Mechanical Lead of my FIRST Tech Challenge team, I designed our chassis, shooter, and intake in Onshape."
+    tags: [mechanical, robotics, cad]
+    numbers: []
+
+  - id: F_FTC_AWARD
+    category: robotics
+    resume_line: "FTC: directed the team to the State Championships, earning the Inspire Award (State Championship), Control Award, Inspire Award (Qualifiers)"
+    email_phrase: "I led our team to the FIRST Tech Challenge State Championships, where we won the Inspire Award."
+    followup_phrase: "I led my FIRST Tech Challenge team to the State Championships, where we won the Inspire Award."
+    tags: [robotics, mechanical, leadership]
+    numbers: []
+
+  - id: F_GLASSES
+    category: project
+    resume_line: "AI Smart Glasses (Oct 2025-present): camera + classifier model; ESP-32-CAM and self-designed 3D glasses analyze live video input"
+    email_phrase: "I built AI smart glasses that use an ESP32-CAM and a classifier model to analyze live video."
+    followup_phrase: "I built AI smart glasses that use an ESP32-CAM and a classifier model to analyze live video."
+    tags: [embedded, ml, computer_vision, electrical, computer]
+    numbers: ["ESP32-CAM"]
+
+  - id: F_EPA
+    category: project
+    resume_line: "FTC EPA Website (Jan 2025): open-source ML tool recommending alliance partners; Python/C++ backend, TypeScript frontend; used live in competition"
+    email_phrase: "I built an open-source machine learning tool, used live in competition, that recommends FIRST Tech Challenge alliance partners."
+    followup_phrase: "I built an open-source machine learning tool, used live in competition, that recommends FIRST Tech Challenge alliance partners."
+    tags: [ml, computer, software]
+    numbers: []
+
+  - id: F_SDMINES
+    category: internship
+    resume_line: "South Dakota School of Mines & Technology Internship (Jun 2025-present): lab management app for researchers; AI-generated project reports"
+    email_phrase: "At a South Dakota School of Mines & Technology internship, I built a lab management app for researchers that uses AI to generate project reports."
+    followup_phrase: "At a South Dakota School of Mines & Technology internship I built a lab management app for researchers that uses AI to generate project reports."
+    tags: [software, ml, research, computer]
+    numbers: []
+
+  - id: F_INNO
+    category: internship
+    resume_line: "Innoflexion (Apr-Aug 2026), AI Engineer Intern: autonomous data-extraction agents with LangChain and LiteLLM; pipelines in Python for unstructured internal data"
+    email_phrase: "As an AI engineer intern at Innoflexion, I built Python agents that extract structured information from unstructured documents."
+    followup_phrase: "As an AI engineer intern at Innoflexion, I built Python agents that extract structured information from unstructured documents."
+    tags: [ml, software, computer]
+    numbers: []
+
+  - id: F_LGHACKS
+    category: award
+    resume_line: "1st Place and Best AI Project, LG Hacks Hackathon (Apr 2024): OpenCV-based AI interview assistant"
+    email_phrase: "I won first place and Best AI Project at the LG Hacks Hackathon with an OpenCV-based interview assistant."
+    followup_phrase: "I won first place and Best AI Project at the LG Hacks Hackathon with an OpenCV-based interview assistant."
+    tags: [ml, computer_vision, computer]
+    numbers: ["OpenCV"]
+
+  - id: F_BIOWRAP
+    category: conference
+    resume_line: "SD Mines internship: 'Present research at BioWrap conference in Nebraska' (tense unclear on the resume)"
+    email_phrase: "I presented research at the BioWrap conference in Nebraska."
+    tags: [research, biomedical]
+    numbers: []
+    status: needs_confirmation
+    note: "Resume says 'Present research'. Ask Ishaan whether this already happened or is upcoming before this fact can be used."
