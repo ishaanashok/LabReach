@@ -78,11 +78,19 @@ def check_claim_failure_streak(conn: sqlite3.Connection, stop_file: Path, *, str
     return False
 
 
+ACCOUNT_MARKERS = ("sending limit", "suspended", "unusual", "blocked", "too many", "spam", "authentication",
+                   "username and password", "application-specific password", "5.4.5", "5.7.")
+ACCOUNT_CODES = (421, 450, 452, 454, 530, 534, 535)
+
+
+def is_account_problem(code: int | None, text: str) -> bool:
+    """True for SMTP errors that signal sending restrictions or account trouble (not a bad recipient)."""
+    return any(m in text.lower() for m in ACCOUNT_MARKERS) or code in ACCOUNT_CODES
+
+
 def on_smtp_error(conn: sqlite3.Connection, stop_file: Path, code: int | None, text: str) -> bool:
     """Any 4xx/5xx that signals sending limits or account problems stops everything."""
-    markers = ("sending limit", "suspended", "unusual", "blocked", "too many", "spam", "authentication",
-               "username and password", "application-specific password", "5.4.5", "5.7.")
-    if any(m in text.lower() for m in markers) or code in (421, 450, 452, 454, 530, 534, 535):
+    if is_account_problem(code, text):
         engage(conn, stop_file, f"SMTP error {code}: {text[:200]}")
         return True
     return False

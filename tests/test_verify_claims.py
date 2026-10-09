@@ -98,3 +98,57 @@ def test_subject_topic_must_exist_in_sources(case, profile):
     bad = copy.deepcopy(slots)
     bad.subject_topic = "quantum gravity"
     assert any("subject topic" in f for f in verify_draft(bad, sources, profile, template).failures)
+
+
+def test_framing_words_do_not_count_against_support(case, profile):
+    template, slots, sources = case
+    ok = copy.deepcopy(slots)
+    ok.p1 = ('I read your recent paper "Adaptive Socket Interfaces for Low-Cost Prosthetic Limbs" which presents a '
+             "compliant socket that adapts to residual-limb volume change.")
+    ok.claims[0].text = ok.p1.rstrip(".")
+    assert verify_draft(ok, sources, profile, template).ok
+
+
+def test_subject_formula_must_fit_the_recipient_role(case, profile):
+    template, slots, sources = case
+    grad_formula = copy.deepcopy(slots)
+    grad_formula.subject_formula = "S4"
+    assert any("S4" in f for f in verify_draft(grad_formula, sources, profile, template, "professor").failures)
+    assert not any("subject formula" in f for f in verify_draft(grad_formula, sources, profile, template, "grad_student").failures)
+    prof_formula = copy.deepcopy(slots)
+    prof_formula.subject_formula = "S3"
+    assert not any("subject formula" in f for f in verify_draft(prof_formula, sources, profile, template, "professor").failures)
+    assert any("S3" in f for f in verify_draft(prof_formula, sources, profile, template, "postdoc").failures)
+
+
+def test_personalization_may_not_repeat_the_credentials_paragraph(case, profile):
+    template, slots, sources = case
+    dup = copy.deepcopy(slots)
+    dup.p2 = ("I founded Project ReStep, a 501(c)(3) building low-cost 3D-printed prosthetics, so I wondered how your "
+              "socket adapts to volume change.")
+    dup.claims[1] = Claim(text="I founded Project ReStep, a 501(c)(3) building low-cost 3D-printed prosthetics",
+                          profile_fact_id="F_RESTEP")
+    dup.claims[2] = Claim(text="how your socket adapts to volume change", source_id=1)
+    assert any("repeat wording" in f for f in verify_draft(dup, sources, profile, template).failures)
+
+
+def test_question_marks_are_not_allowed_in_personalization(case, profile):
+    template, slots, sources = case
+    q = copy.deepcopy(slots)
+    q.p2 = "Because our ReStep design is also a low-cost adjustable limb, how does your interface handle fit?"
+    q.claims[1].text = "our ReStep design is also a low-cost adjustable limb"
+    q.claims[2].text = "how does your interface handle fit?"
+    assert any("question mark" in f for f in verify_draft(q, sources, profile, template).failures)
+
+
+def test_light_stemming_tolerates_paraphrase_but_not_fabrication(case, profile):
+    template, slots, sources = case
+    para = copy.deepcopy(slots)
+    para.p1 = ('I read your 2025 paper "Adaptive Socket Interfaces for Low-Cost Prosthetic Limbs" on a socket reducing fitting '
+               "iteration in clinics.")
+    para.claims[0].text = para.p1.rstrip(".")
+    assert verify_draft(para, sources, profile, template).ok
+    fab = copy.deepcopy(para)
+    fab.p1 = fab.p1.replace("reducing fitting iteration in clinics", "using neural implants that cure paralysis")
+    fab.claims[0].text = fab.p1.rstrip(".")
+    assert not verify_draft(fab, sources, profile, template).ok

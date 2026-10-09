@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from datetime import UTC, datetime
 from pathlib import Path
 
 MIGRATIONS_DIR = Path(__file__).parent / "migrations"
@@ -29,6 +30,11 @@ def migrate(conn: sqlite3.Connection) -> list[str]:
         conn.commit()
         applied.append(sql_file.name)
     return applied
+
+
+def utc_now_str(now: datetime | None = None) -> str:
+    """Canonical UTC timestamp string stored in the database (sortable, no timezone suffix)."""
+    return (now or datetime.now(UTC)).astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%S")
 
 
 def log_event(conn: sqlite3.Connection, type_: str, target_id: int | None = None, **detail) -> None:

@@ -1,0 +1,17 @@
+REAL MODEL OUTPUT on a FICTIONAL source (a made-up paper at a made-up lab), produced by the actual drafting pipeline:
+claude -p draft -> claim verification -> render -> lint. Passed every check. Never sent.
+
+Question about your 2025 paper on Adaptive Socket Interfaces for Low-Cost Prosthetic Limbs
+Dear Professor Abernathy,
+
+I'm Ishaan Ashok, a junior at American High School in Fremont. I read your 2025 paper "Adaptive Socket Interfaces for Low-Cost Prosthetic Limbs" on compliant sockets for field clinics.
+
+Your socket adapts to residual-limb volume change and reduces fitting iterations, and I wondered how the compliant interface holds up in 3D-printed parts.
+
+I founded Project ReStep, a 501(c)(3) building low-cost 3D-printed prosthetics; our modular design costs $30 per unit versus about $1,750. As Mechanical Lead of my FIRST Tech Challenge team, I designed our chassis, shooter, and intake in Onshape.
+
+Would you or someone in your lab be open to a 15-minute call about whether I could help with 3D-printing and prototyping work, under a grad student's guidance?
+
+I can volunteer about 10 hours a week during the school year and full time over the summer. I'm 16 and understand minors-in-lab rules, so I'm happy to start with computational or design work. I'm in Fremont and can commute to Stanford.
+
+My resume is attached. Thank you for your time.

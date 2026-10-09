@@ -49,6 +49,18 @@ limits:
   min_fit_score: 5
   target_queue_size: 30
 
+reply_drafts:                    # call times offered in the draft reply (parent edits before sending)
+  call_hour_pacific: 16          # after school
+  count: 3
+  min_days_out: 2
+
+replies:
+  halt_on_hs_decline: false      # a polite "we don't take HS students" closes the lead and drafts a thank-you;
+                                 # complaints, stop requests, compliance/minors offices and unclear replies ALWAYS halt
+
+imap:
+  inbox: INBOX
+
 fetch:
   user_agent: "LabReachBot/0.1 (student research outreach; contact ishaan.ashok123@gmail.com)"
   min_delay_seconds: 3

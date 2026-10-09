@@ -29,8 +29,8 @@ fixed_options:
   ask:
     pi: "Would you or someone in your lab be open to a 15-minute call about whether I could help with {task}, under a grad student's guidance?"
     junior: "Would you be open to a 15-minute call about whether I could help with {task}? I'd also welcome your PI's guidance."
-  logistics_local: "I can volunteer about {hours} hours a week now and full-time from {start} to {end}. I'm {age} and understand minors-in-lab rules, so I'm happy to start with computational or design work. I'm in Fremont and can commute to {campus}."
-  logistics_remote: "I can volunteer about {hours} hours a week now and full-time from {start} to {end}, working remotely or in person for a week or more. I'm {age} and understand minors-in-lab rules, so I'm happy to start with computational or design work."
+  logistics_local: "I can volunteer about {hours} hours a week during the school year and full time over the summer. I'm {age} and understand minors-in-lab rules, so I'm happy to start with computational or design work. I'm in Fremont and can commute to {campus}."
+  logistics_remote: "I can volunteer about {hours} hours a week during the school year and full time over the summer, working remotely or in person for a week or more. I'm {age} and understand minors-in-lab rules, so I'm happy to start with computational or design work."
 subject_formulas:
   S1: "Question about your {year} paper on {topic}"
   S2: "High school student interested in your {topic} work"

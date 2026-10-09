@@ -13,7 +13,7 @@ I founded Project ReStep, a 501(c)(3) building low-cost 3D-printed prosthetics; 
 
 Would you or someone in your lab be open to a 15-minute call about whether I could help with CAD or fixture design, under a grad student's guidance?
 
-I can volunteer about 10 hours a week now and full-time from June 8 to August 14. I'm 16 and understand minors-in-lab rules, so I'm happy to start with computational or design work. I'm in Fremont and can commute to Stanford.
+I can volunteer about 10 hours a week during the school year and full time over the summer. I'm 16 and understand minors-in-lab rules, so I'm happy to start with computational or design work. I'm in Fremont and can commute to Stanford.
 
 My resume is attached. Thank you for your time.
 
@@ -21,7 +21,7 @@ Ishaan Ashok
 Junior, American High School (Fremont, CA)
 ishaan.ashok123@gmail.com
 
-[172 words | lint PASS]
+[173 words | lint PASS]
 
 ===== initial_b: Electrical engineering, embedded systems, sensing, environmental monitoring labs =====
 Subject: High school student interested in your turbidity sensing work
@@ -36,7 +36,7 @@ I co-founded Project LUNA, a low-cost turbidity sensor for stormwater monitoring
 
 Would you be open to a 15-minute call about whether I could help with sensor firmware? I'd also welcome your PI's guidance.
 
-I can volunteer about 10 hours a week now and full-time from June 8 to August 14, working remotely or in person for a week or more. I'm 16 and understand minors-in-lab rules, so I'm happy to start with computational or design work.
+I can volunteer about 10 hours a week during the school year and full time over the summer, working remotely or in person for a week or more. I'm 16 and understand minors-in-lab rules, so I'm happy to start with computational or design work.
 
 My resume is attached. Thank you for your time.
 
@@ -44,7 +44,7 @@ Ishaan Ashok
 Junior, American High School (Fremont, CA)
 ishaan.ashok123@gmail.com
 
-[162 words | lint PASS]
+[163 words | lint PASS]
 
 ===== initial_c: Computer engineering, machine learning, computer vision, lab-software labs =====
 Subject: HS student interested in your defect detection — could I help with a baseline ML experiment?
@@ -59,7 +59,7 @@ I built an open-source machine learning tool, used live in competition, that rec
 
 Would you be open to a 15-minute call about whether I could help with a baseline ML experiment? I'd also welcome your PI's guidance.
 
-I can volunteer about 10 hours a week now and full-time from June 8 to August 14, working remotely or in person for a week or more. I'm 16 and understand minors-in-lab rules, so I'm happy to start with computational or design work.
+I can volunteer about 10 hours a week during the school year and full time over the summer, working remotely or in person for a week or more. I'm 16 and understand minors-in-lab rules, so I'm happy to start with computational or design work.
 
 My resume is attached. Thank you for your time.
 
@@ -67,7 +67,7 @@ Ishaan Ashok
 Junior, American High School (Fremont, CA)
 ishaan.ashok123@gmail.com
 
-[164 words | lint PASS]
+[165 words | lint PASS]
 
 ===== followup_1: First follow-up, 2-4 sentences, one new true piece of value =====
 Dear Professor Rivera,

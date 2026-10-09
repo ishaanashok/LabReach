@@ -20,6 +20,11 @@ QUESTION_STARTS = ("how", "whether", "why", "what", "if", "when", "where")
 STOPWORDS = set("""a an the and or of to in on for with by from at as is are was were be been it its this that
 these those their there which who whom what how into over under about than then so but not no can could would
 should may might will your you i my me our we us they them he she his her also such more most one two each""".split())
+# words that frame a sentence ("I read your 2025 paper...") rather than assert something about the work
+FRAMING = set("read paper article work recent recently project study post page news presents present presented describes "
+              "describing describe shows showed show reports report introduces introduced learned noticed saw found "
+              "interesting question wondered curious".split())
+ALLOWED_FORMULAS = {"professor": {"S1", "S2", "S3"}, "other": {"S2", "S4"}}   # S4 addresses a grad student/postdoc
 MIN_CONFIDENCE = 0.7
 MIN_SUPPORT = 0.6
 MIN_SUPPORT_QUESTION = 0.0   # a question asserts nothing; named terms/numbers/years in it are still checked
@@ -44,8 +49,22 @@ def _norm(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip().lower()
 
 
-def _words(text: str) -> set[str]:
-    return {w for w in re.findall(r"[a-z0-9][a-z0-9\-']*", _norm(text)) if w not in STOPWORDS and len(w) > 2}
+def _stem(word: str) -> str:
+    """Light stemming so 'reduces/reduced/reducing' and 'clinic/clinics' compare equal; fabrications still miss."""
+    for suffix in ("ing", "ed", "es", "s"):
+        if word.endswith(suffix) and len(word) - len(suffix) >= 4:
+            return word[: -len(suffix)]
+    return word
+
+
+def _words(text: str, ignore_framing: bool = False) -> set[str]:
+    return {_stem(w) for w in re.findall(r"[a-z0-9][a-z0-9\-']*", _norm(text))
+            if w not in STOPWORDS and len(w) > 2 and not (ignore_framing and w in FRAMING)}
+
+
+def _ngrams(text: str, n: int = 4) -> set[tuple[str, ...]]:
+    words = re.findall(r"[a-z0-9']+", _norm(text))
+    return {tuple(words[i:i + n]) for i in range(max(0, len(words) - n + 1))}
 
 
 def _sentences(text: str) -> list[str]:
@@ -53,12 +72,15 @@ def _sentences(text: str) -> list[str]:
 
 
 def verify_draft(slots: DraftSlots, sources: dict[int, Source], profile: StudentProfile,
-                 template: dict) -> VerifyResult:
+                 template: dict, role: str = "professor") -> VerifyResult:
     fail: list[str] = []
     if slots.confidence < MIN_CONFIDENCE:
         fail.append(f"confidence {slots.confidence:.2f} below {MIN_CONFIDENCE}")
 
     # structural choices must come from the locked pools
+    allowed = ALLOWED_FORMULAS["professor" if role == "professor" else "other"]
+    if slots.subject_formula not in allowed:
+        fail.append(f"subject formula {slots.subject_formula} is not used for a {role} (allowed: {sorted(allowed)})")
     if slots.task not in template["task_pool"]:
         fail.append(f"task '{slots.task}' not in task pool")
     for fid in slots.credential_fact_ids:
@@ -80,7 +102,7 @@ def verify_draft(slots: DraftSlots, sources: dict[int, Source], profile: Student
                 fail.append(f"claim cites unknown source {claim.source_id}")
                 continue
             cited_sources.append(src)
-            claim_words = _words(QUOTE_RE.sub(" ", claim.text))   # a verbatim quote must not pad the score
+            claim_words = _words(QUOTE_RE.sub(" ", claim.text), ignore_framing=True)   # quotes must not pad the score
             if claim_words:
                 support = len(claim_words & _words(src.text)) / len(claim_words)
                 needed = MIN_SUPPORT_QUESTION if _norm(claim.text).startswith(QUESTION_STARTS) else MIN_SUPPORT
@@ -98,6 +120,16 @@ def verify_draft(slots: DraftSlots, sources: dict[int, Source], profile: Student
 
     text = f"{slots.p1} {slots.p2}"
     norm_text = _norm(text)
+
+    # the template's own ask is the only question in the email
+    if "?" in text:
+        fail.append("p1/p2 must not contain a question mark (phrase curiosity as 'I wondered how...')")
+
+    # the credentials paragraph is added by the template; p1/p2 must not repeat it
+    credentials = " ".join(profile.usable(f).email_phrase for f in slots.credential_fact_ids if profile.usable(f))
+    mine = _ngrams(text)
+    if mine and len(mine & _ngrams(credentials)) / len(mine) > 0.15:
+        fail.append("p1/p2 repeat wording from the credentials paragraph")
 
     # every sentence must be covered by a claim; first-person sentences need a profile fact
     for sentence in _sentences(text):
