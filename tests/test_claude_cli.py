@@ -1,10 +1,15 @@
 import json
 
 import pytest
+from pydantic import BaseModel
 
 from labreach import claude_cli as cc
 from labreach.budget import BudgetExhausted
-from labreach.models import FollowupSlots
+
+
+class FollowupSlots(BaseModel):          # any small schema will do
+    task: str
+    value_fact_id: str | None = None
 
 
 def test_structured_output_and_no_tools_for_drafting(fake_claude, conn):

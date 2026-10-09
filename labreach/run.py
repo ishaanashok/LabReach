@@ -1,5 +1,6 @@
 """The single-process run loop: kill switch -> reply/bounce sync -> discovery top-up -> drafting -> gates ->
-sending (windows, caps, jitter) -> follow-ups. Dry-run by default; the pilot never sends."""
+sending (windows, caps, jitter). Initial emails only: the parent writes every follow-up personally.
+Dry-run by default; the pilot never sends."""
 
 from __future__ import annotations
 
@@ -25,8 +26,8 @@ from .discovery.fetch import Fetcher
 from .gates import GateResults, run_gates
 from .mail_imap import ImapLoginFailure
 from .mail_smtp import AccountProblem, LoginFailure, RecipientRejected, SmtpSender, TransientSendError
-from .models import DraftSlots, StudentProfile
-from .personalize.generate import draft_initial, recipient_from_row
+from .models import StudentProfile
+from .personalize.generate import draft_initial
 
 PILOT_KEY = "pilot_approved"
 LIVE_CONFIRMED_KEY = "live_confirmed"
@@ -186,77 +187,13 @@ def _record_gates(ctx: RunContext, email: sqlite3.Row, gates: GateResults) -> No
     ctx.conn.commit()
 
 
-def _due_followups(ctx: RunContext) -> list[sqlite3.Row]:
-    """Create fu1/fu2 rows for people whose previous email is old enough and who have not replied or bounced."""
-    now = ctx.now()
-    created: list[sqlite3.Row] = []
-    for t in ctx.conn.execute("SELECT * FROM targets WHERE status = 'active'").fetchall():
-        sent = {r["kind"]: r for r in ctx.conn.execute("SELECT * FROM emails WHERE target_id = ? AND sent_at IS NOT NULL", (t["id"],))}
-        if "initial" not in sent or sent["initial"]["replied_at"] or sent["initial"]["bounced_at"]:
-            continue
-        kind = "fu1" if "fu1" not in sent else ("fu2" if "fu2" not in sent else None)
-        if kind is None or (kind == "fu2" and "fu1" not in sent):
-            continue
-        prev = sent["initial" if kind == "fu1" else "fu1"]
-        if not scheduler.followup_due(kind, datetime.fromisoformat(prev["sent_at"]).replace(tzinfo=UTC), now,
-                                      t["timezone"] or ctx.settings["timezone"], ctx.settings):
-            continue
-        existing = ctx.conn.execute("SELECT * FROM emails WHERE target_id = ? AND kind = ?", (t["id"], kind)).fetchone()
-        if existing is None:
-            existing = _make_followup(ctx, t, kind, sent["initial"])
-        if existing is not None:
-            created.append(existing)
-    return created
-
-
-def pick_followup_value(profile: StudentProfile, used: set[str]) -> str | None:
-    """One NEW true fact for follow-up 1: not used in the initial email, preferring topics the initial email raised."""
-    topics = {t for fid in used if (f := profile.fact(fid)) for t in f.tags}
-    candidates = [f for f in profile.facts if profile.usable(f.id) and f.followup_phrase and f.id not in used]
-    if not candidates:
-        return None
-    return max(candidates, key=lambda f: len(topics & set(f.tags))).id
-
-
-def _make_followup(ctx: RunContext, target: sqlite3.Row, kind: str, initial: sqlite3.Row) -> sqlite3.Row | None:
-    template = ctx.templates["followup_1" if kind == "fu1" else "followup_2"]
-    slots = DraftSlots.model_validate_json(initial["slots_json"])
-    value = pick_followup_value(ctx.profile, set(slots.credential_fact_ids))
-    if kind == "fu1" and value is None:
-        return None
-    rendered = render_mod.render_followup(template, recipient_from_row(target), ctx.profile, task=slots.task,
-                                          value_fact_id=value, enforce_lock=ctx.enforce_lock)
-    ctx.conn.execute(
-        "INSERT INTO emails (target_id, kind, state, template_version, subject, body, word_count, thread_root_message_id, slots_json) "
-        "VALUES (?,?,?,?,?,?,?,?,?)",
-        (target["id"], kind, "draft", f"{template['id']}@{template['version']}", mime.followup_subject(initial["subject"]),
-         rendered.body, len(rendered.body.split()), initial["thread_root_message_id"] or initial["message_id"],
-         initial["slots_json"]))
-    ctx.conn.commit()
-    return ctx.conn.execute("SELECT * FROM emails WHERE target_id = ? AND kind = ?", (target["id"], kind)).fetchone()
-
-
 def _send(ctx: RunContext, email: sqlite3.Row, target: sqlite3.Row, report: RunReport) -> bool:
     """Build, send, record. Returns False if the run must stop."""
     stu = ctx.settings["student"]
     now = ctx.now()
-    if email["kind"] == "initial":
-        built = mime.build_message(from_name=stu["full_name"], from_addr=stu["gmail"], to_addr=target["email"],
-                                   subject=email["subject"], body=email["body"],
-                                   signature=render_signature(ctx), now=now, attachment=ctx.resume_pdf,
-                                   attachment_name=stu["resume_attachment_name"])
-        root = None
-    else:
-        initial = ctx.conn.execute("SELECT * FROM emails WHERE target_id = ? AND kind = 'initial'", (target["id"],)).fetchone()
-        chain = [r["message_id"] for r in ctx.conn.execute(
-            "SELECT message_id FROM emails WHERE target_id = ? AND sent_at IS NOT NULL ORDER BY sent_at", (target["id"],))]
-        prev_id = chain[-1]
-        quoted = mime.quote_original(initial["body"], render_signature(ctx), datetime.fromisoformat(initial["sent_at"]),
-                                     stu["full_name"])
-        built = mime.build_message(from_name=stu["full_name"], from_addr=stu["gmail"], to_addr=target["email"],
-                                   subject=email["subject"], body=email["body"], signature=render_signature(ctx), now=now,
-                                   in_reply_to=prev_id, references=chain, quoted=quoted)
-        root = initial["message_id"]
+    built = mime.build_message(from_name=stu["full_name"], from_addr=stu["gmail"], to_addr=target["email"],
+                               subject=email["subject"], body=email["body"], signature=render_signature(ctx), now=now,
+                               attachment=ctx.resume_pdf, attachment_name=stu["resume_attachment_name"])
     try:
         ctx.sender.send(built.message)
     except LoginFailure as exc:
@@ -281,7 +218,7 @@ def _send(ctx: RunContext, email: sqlite3.Row, target: sqlite3.Row, report: RunR
         killswitch.check_bounce_rate(ctx.conn, ctx.stop_file, threshold=lim["bounce_rate_threshold"], window=lim["bounce_window"])
         return not killswitch.is_engaged(ctx.conn, ctx.stop_file)
     ctx.conn.execute("UPDATE emails SET state = 'sent', sent_at = ?, message_id = ?, thread_root_message_id = ? WHERE id = ?",
-                     (utc_now_str(now), built.message_id, root or built.message_id, email["id"]))
+                     (utc_now_str(now), built.message_id, built.message_id, email["id"]))
     ctx.conn.execute("UPDATE targets SET status = 'active' WHERE id = ?", (target["id"],))
     ctx.conn.commit()
     log_event(ctx.conn, "email_sent", target["id"], kind=email["kind"], message_id=built.message_id)
@@ -300,9 +237,8 @@ def step_sending(ctx: RunContext, report: RunReport) -> None:
     initials = ctx.conn.execute(
         "SELECT e.* FROM emails e JOIN targets t ON t.id = e.target_id WHERE e.kind = 'initial' AND e.sent_at IS NULL "
         "AND e.state IN ('draft','pilot') AND t.status = 'drafted' ORDER BY t.fit_score DESC, e.id").fetchall()
-    followups = [] if m == "dry_run" else _due_followups(ctx)
     pilot_count = ctx.conn.execute("SELECT COUNT(*) FROM emails WHERE kind = 'initial' AND state = 'pilot'").fetchone()[0]
-    for email in [*followups, *initials]:
+    for email in initials:
         if killswitch.is_engaged(ctx.conn, ctx.stop_file):
             report.stopped = killswitch.reason(ctx.conn, ctx.stop_file)
             return
@@ -315,9 +251,9 @@ def step_sending(ctx: RunContext, report: RunReport) -> None:
             ctx.conn.execute("UPDATE targets SET status = 'needs_human' WHERE id = ? AND status = 'drafted'", (target["id"],))
             ctx.conn.commit()
             report.needs_human += 1
-            report.say(f"needs_human: {target['name']} ({email['kind']}): {gates.failures()[:2]}")
+            report.say(f"needs_human: {target['name']}: {gates.failures()[:2]}")
             continue
-        if email["kind"] == "initial" and m in ("dry_run", "pilot"):
+        if m in ("dry_run", "pilot"):
             if m == "pilot" and pilot_count >= pilot_size and email["state"] != "pilot":
                 continue                       # pilot already full; wait for approve-pilot
             label = "DRY RUN" if m == "dry_run" else "PILOT"
@@ -343,11 +279,6 @@ def step_sending(ctx: RunContext, report: RunReport) -> None:
             email = ctx.conn.execute("SELECT * FROM emails WHERE id = ?", (email["id"],)).fetchone()
         if email["send_after"] > utc_now_str(now):
             continue
-        if email["kind"] != "initial":          # reply check immediately before each follow-up
-            step_sync(ctx, report)
-            if killswitch.is_engaged(ctx.conn, ctx.stop_file) or ctx.conn.execute(
-                    "SELECT 1 FROM emails WHERE target_id = ? AND replied_at IS NOT NULL", (target["id"],)).fetchone():
-                continue
         if not _send(ctx, email, target, report):
             return
         lo, hi = 20, 60

@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 import sqlite3
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -48,7 +48,7 @@ def is_dnc(conn: sqlite3.Connection, email: str) -> bool:
                         (email, domain)).fetchone() is not None
 
 
-def _gate_template(g, conn, email, target, template, profile, settings, now, enforce_lock):
+def _gate_template(g, email, target, template, profile, settings, now, enforce_lock):
     try:
         if enforce_lock:
             tpl.verify_lock(template)
@@ -57,37 +57,18 @@ def _gate_template(g, conn, email, target, template, profile, settings, now, enf
         return
     recipient = recipient_from_row(target)
     local_today = now.astimezone(ZoneInfo(settings["timezone"])).date()
-    if email["kind"] == "initial":
-        ok, problems = render_mod.conforms(template, email["body"], profile, (recipient, settings, local_today))
-    else:
-        parts = render_mod.extract_slots(template, email["body"])
-        initial = conn.execute("SELECT slots_json FROM emails WHERE target_id = ? AND kind = 'initial'", (target["id"],)).fetchone()
-        task = DraftSlots.model_validate_json(initial["slots_json"]).task if initial and initial["slots_json"] else None
-        problems = []
-        if parts is None:
-            problems.append("fixed skeleton text was altered")
-        else:
-            if parts["greeting"] != render_mod.greeting(template, recipient):
-                problems.append("greeting differs from the approved option")
-            if parts["task"] != task:
-                problems.append("task differs from the one named in the initial email")
-            if "new_value" in parts and not any(f.followup_phrase == parts["new_value"] for f in profile.facts if profile.usable(f.id)):
-                problems.append("new value is not an approved follow-up phrase")
-        ok = not problems
+    ok, problems = render_mod.conforms(template, email["body"], profile, (recipient, settings, local_today))
     g.add("template", ok, "; ".join(problems) if not ok else "matches locked skeleton")
 
 
 def _gate_lint(g, conn, email, target, profile, settings):
     slots = DraftSlots.model_validate_json(email["slots_json"]) if email["slots_json"] else None
-    ctx = lint_context_for(conn, target, settings, profile, slots, email["personalization"] or "", email["kind"], email["id"])
-    report = lint_mod.lint_email(email["subject"] if email["kind"] == "initial" else None, email["body"], ctx)
+    ctx = lint_context_for(conn, target, settings, profile, slots, email["personalization"] or "", "initial", email["id"])
+    report = lint_mod.lint_email(email["subject"], email["body"], ctx)
     g.add("lint", report.ok, "; ".join(f"{i.rule}: {i.detail}" for i in report.issues) or "clean")
 
 
 def _gate_claims(g, conn, email, target, template, profile):
-    if email["kind"] != "initial":
-        g.add("claims", True, "follow-up uses approved fact phrases only")
-        return
     if not email["slots_json"]:
         g.add("claims", False, "no stored slots")
         return
@@ -124,7 +105,7 @@ def _gate_provenance(g, target, settings):
     g.add("provenance", not problems, "; ".join(problems) or "address found verbatim on an official page")
 
 
-def _gate_eligibility(g, conn, email, target, now, settings):
+def _gate_eligibility(g, conn, email, target):
     problems = []
     if is_dnc(conn, target["email"]):
         problems.append("on do-not-contact")
@@ -141,33 +122,10 @@ def _gate_eligibility(g, conn, email, target, now, settings):
             (target["id"], target["lab_key"])).fetchone()
         if rival:
             problems.append("another contact in the same lab is active")
-    if email["kind"] == "initial":
-        if target["status"] not in ("drafted", "eligible", "active"):
-            problems.append(f"target status '{target['status']}' does not allow sending")
-        if email["sent_at"]:
-            problems.append("initial email was already sent")
-    else:
-        prev = "initial" if email["kind"] == "fu1" else "fu1"
-        prev_row = conn.execute("SELECT sent_at, replied_at, bounced_at FROM emails WHERE target_id = ? AND kind = ?",
-                                (target["id"], prev)).fetchone()
-        if not prev_row or not prev_row["sent_at"]:
-            problems.append(f"{prev} has not been sent")
-        elif prev_row["replied_at"] or prev_row["bounced_at"]:
-            problems.append("recipient replied or address bounced")
-        if target["status"] != "active":
-            problems.append(f"target status '{target['status']}' stops follow-ups")
-        replied = conn.execute("SELECT 1 FROM emails WHERE target_id = ? AND (replied_at IS NOT NULL OR bounced_at IS NOT NULL)",
-                               (target["id"],)).fetchone()
-        if replied:
-            problems.append("a reply or bounce is recorded for this person")
-        count = conn.execute("SELECT COUNT(*) FROM emails WHERE target_id = ? AND sent_at IS NOT NULL", (target["id"],)).fetchone()[0]
-        if count >= 3 or (conn.execute("SELECT 1 FROM emails WHERE target_id=? AND kind=? AND sent_at IS NOT NULL",
-                                       (target["id"], email["kind"])).fetchone()):
-            problems.append("sequence limit (1 initial + 2 follow-ups) reached")
-        if prev_row and prev_row["sent_at"] and not scheduler.followup_due(
-                email["kind"], datetime.fromisoformat(prev_row["sent_at"]).replace(tzinfo=UTC), now,
-                target["timezone"] or "America/Los_Angeles", settings):
-            problems.append("follow-up is not due yet")
+    if target["status"] not in ("drafted", "eligible", "active"):
+        problems.append(f"target status '{target['status']}' does not allow sending")
+    if email["sent_at"]:
+        problems.append("this email was already sent (one initial email per person, ever; follow-ups are yours)")
     g.add("eligibility", not problems, "; ".join(problems) or "clear to contact")
 
 
@@ -184,16 +142,13 @@ def run_gates(conn: sqlite3.Connection, email: sqlite3.Row, settings: dict, prof
         for name in CONTENT_GATES[1:]:
             g.add(name, False, "skipped: no template or body")
     else:
-        _gate_template(g, conn, email, target, template, profile, settings, now, enforce_lock)
+        _gate_template(g, email, target, template, profile, settings, now, enforce_lock)
         _gate_lint(g, conn, email, target, profile, settings)
         _gate_claims(g, conn, email, target, template, profile)
         _gate_provenance(g, target, settings)
-        _gate_eligibility(g, conn, email, target, now, settings)
-    if email["kind"] == "initial":
-        problems = scheduler.cap_problems(conn, settings, now, target["university_norm"], target["department"])
-        g.add("limits", not problems, "; ".join(problems) or "within daily, university and department caps")
-    else:
-        g.add("limits", True, "follow-ups are not counted against new-contact caps")
+        _gate_eligibility(g, conn, email, target)
+    problems = scheduler.cap_problems(conn, settings, now, target["university_norm"], target["department"])
+    g.add("limits", not problems, "; ".join(problems) or "within daily, university and department caps")
     tz = target["timezone"] or settings["timezone"]
     in_window = scheduler.in_send_window(now, tz, settings, target["university"])
     g.add("window", in_window, "inside recipient-local send window" if in_window else

@@ -53,14 +53,12 @@ def test_rejects_multiple_recipients_and_header_injection():
         build(subject="Hi\nBcc: evil@x.com")
 
 
-def test_followup_threads_and_has_no_attachment(pdf):
+def test_reply_drafts_thread_and_have_no_attachment(pdf):
     first = build()
-    quoted = mime.quote_original("Dear Professor Rivera,\n\nBody.", "Ishaan Ashok", NOW, "Ishaan Ashok")
-    fu = build(subject=mime.followup_subject("Question about X"), in_reply_to=first.message_id,
-               references=[first.message_id], quoted=quoted)
-    assert fu.message["In-Reply-To"] == first.message_id and fu.message["References"] == first.message_id
-    assert fu.message["Subject"] == "Re: Question about X"
-    assert "> Dear Professor Rivera," in fu.message.get_content()
+    reply = build(subject=mime.followup_subject("Question about X"), in_reply_to=first.message_id,
+                  references=[first.message_id])
+    assert reply.message["In-Reply-To"] == first.message_id and reply.message["References"] == first.message_id
+    assert reply.message["Subject"] == "Re: Question about X"
     with pytest.raises(ValueError):
         build(in_reply_to=first.message_id, attachment=pdf)
     assert mime.followup_subject("Re: Question about X") == "Re: Question about X"

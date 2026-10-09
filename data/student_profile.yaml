@@ -23,7 +23,6 @@ facts:
     category: nonprofit
     resume_line: "Project ReStep: distributing units at no cost to underserved communities in India, currently working with the state government there (wording per Ishaan's parent; Tamil Nadu intentionally omitted)"
     email_phrase: "Project ReStep is giving prosthetics at no cost to underserved communities in India, and we are currently working with the state government there."
-    followup_phrase: "Project ReStep is now giving prosthetics at no cost to underserved communities in India, working with the state government there."
     tags: [prosthetics, biomedical, outreach]
     numbers: []
 
@@ -38,7 +37,6 @@ facts:
     category: project
     resume_line: "Project LUNA: offers a ~$30K alternative to systems that can cost cities up to $6M"
     email_phrase: "Our LUNA sensor offers a roughly $30K alternative to systems that can cost cities up to $6M."
-    followup_phrase: "Our LUNA turbidity sensor offers a roughly $30K alternative to systems that can cost cities up to $6M."
     tags: [sensors, environmental]
     numbers: ["$30K", "$6M"]
 
@@ -46,7 +44,6 @@ facts:
     category: project
     resume_line: "Project LUNA: presented research findings at an IEEE conference"
     email_phrase: "I presented our LUNA research findings at an IEEE conference."
-    followup_phrase: "I presented our LUNA turbidity-sensor research findings at an IEEE conference."
     tags: [sensors, environmental, research]
     numbers: ["IEEE"]
 
@@ -54,7 +51,6 @@ facts:
     category: award
     resume_line: "Youth Business Venture Competition (Aug 2026): top 15 internationally out of roughly 300 teams; presented Project LUNA to judges at Stanford"
     email_phrase: "Project LUNA placed in the top 15 of roughly 300 teams internationally at the Youth Business Venture Competition."
-    followup_phrase: "Project LUNA placed in the top 15 of roughly 300 teams internationally at the Youth Business Venture Competition, where I presented to judges at Stanford."
     tags: [sensors, environmental, outreach]
     numbers: ["15", "300"]
 
@@ -69,7 +65,6 @@ facts:
     category: robotics
     resume_line: "FTC: directed the team to the State Championships, earning the Inspire Award (State Championship), Control Award, Inspire Award (Qualifiers)"
     email_phrase: "I led our team to the FIRST Tech Challenge State Championships, where we won the Inspire Award."
-    followup_phrase: "I led my FIRST Tech Challenge team to the State Championships, where we won the Inspire Award."
     tags: [robotics, mechanical, leadership]
     numbers: []
 
@@ -77,7 +72,6 @@ facts:
     category: project
     resume_line: "AI Smart Glasses (Oct 2025-present): camera + classifier model; ESP-32-CAM and self-designed 3D glasses analyze live video input"
     email_phrase: "I built AI smart glasses that use an ESP32-CAM and a classifier model to analyze live video."
-    followup_phrase: "I built AI smart glasses that use an ESP32-CAM and a classifier model to analyze live video."
     tags: [embedded, ml, computer_vision, electrical, computer]
     numbers: ["ESP32-CAM"]
 
@@ -85,7 +79,6 @@ facts:
     category: project
     resume_line: "FTC EPA Website (Jan 2025): open-source ML tool recommending alliance partners; Python/C++ backend, TypeScript frontend; used live in competition"
     email_phrase: "I built an open-source machine learning tool, used live in competition, that recommends FIRST Tech Challenge alliance partners."
-    followup_phrase: "I built an open-source machine learning tool, used live in competition, that recommends FIRST Tech Challenge alliance partners."
     tags: [ml, computer, software]
     numbers: []
 
@@ -93,7 +86,6 @@ facts:
     category: internship
     resume_line: "South Dakota School of Mines & Technology Internship (Jun 2025-present): lab management app for researchers; AI-generated project reports"
     email_phrase: "At a South Dakota School of Mines & Technology internship, I built a lab management app for researchers that uses AI to generate project reports."
-    followup_phrase: "At a South Dakota School of Mines & Technology internship I built a lab management app for researchers that uses AI to generate project reports."
     tags: [software, ml, research, computer]
     numbers: []
 
@@ -101,7 +93,6 @@ facts:
     category: internship
     resume_line: "Innoflexion (Apr-Aug 2026), AI Engineer Intern: autonomous data-extraction agents with LangChain and LiteLLM; pipelines in Python for unstructured internal data"
     email_phrase: "As an AI engineer intern at Innoflexion, I built Python agents that extract structured information from unstructured documents."
-    followup_phrase: "As an AI engineer intern at Innoflexion, I built Python agents that extract structured information from unstructured documents."
     tags: [ml, software, computer]
     numbers: []
 
@@ -109,15 +100,12 @@ facts:
     category: award
     resume_line: "1st Place and Best AI Project, LG Hacks Hackathon (Apr 2024): OpenCV-based AI interview assistant"
     email_phrase: "I won first place and Best AI Project at the LG Hacks Hackathon with an OpenCV-based interview assistant."
-    followup_phrase: "I won first place and Best AI Project at the LG Hacks Hackathon with an OpenCV-based interview assistant."
     tags: [ml, computer_vision, computer]
     numbers: ["OpenCV"]
 
   - id: F_BIOWRAP
     category: conference
-    resume_line: "SD Mines internship: 'Present research at BioWrap conference in Nebraska' (tense unclear on the resume)"
-    email_phrase: "I presented research at the BioWrap conference in Nebraska."
-    tags: [research, biomedical]
+    resume_line: "SD Mines internship: presented research at the BioWrap conference in Nebraska (confirmed by Ishaan's parent: it already happened and he presented)"
+    email_phrase: "I presented research from my South Dakota School of Mines & Technology internship at the BioWrap conference in Nebraska."
+    tags: [research, biomedical, software, computer]
     numbers: []
-    status: needs_confirmation
-    note: "Resume says 'Present research'. Ask Ishaan whether this already happened or is upcoming before this fact can be used."

@@ -24,12 +24,6 @@ def _clean_header(value: str, what: str) -> str:
     return value.strip()
 
 
-def quote_original(original_body: str, original_signature: str, sent_at: datetime, sender: str) -> str:
-    stamp = sent_at.strftime("%a, %b %d, %Y at %I:%M %p UTC")
-    quoted = "\n".join("> " + line if line else ">" for line in (original_body + "\n\n" + original_signature).splitlines())
-    return f"On {stamp}, {sender} wrote:\n{quoted}"
-
-
 def build_message(*, from_name: str, from_addr: str, to_addr: str, subject: str, body: str, signature: str,
                   now: datetime, attachment: Path | None = None, attachment_name: str | None = None,
                   in_reply_to: str | None = None, references: list[str] | None = None,

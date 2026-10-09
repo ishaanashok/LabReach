@@ -123,7 +123,8 @@ def test_nothing_is_sent_outside_the_window(conn, settings, profile, templates, 
     assert smtp.sent == []
 
 
-def test_followups_thread_skip_repliers_and_stop_after_two(conn, settings, profile, templates, tmp_path, live_env, fake_claude):
+def test_no_follow_ups_are_ever_sent_and_replies_only_make_drafts(conn, settings, profile, templates, tmp_path, live_env,
+                                                                    fake_claude):
     ask, _ = world(conn, 2)
     go_live(conn)
     smtp = FakeSMTP()
@@ -133,37 +134,19 @@ def test_followups_thread_skip_repliers_and_stop_after_two(conn, settings, profi
     clock.set(2026, 10, 20, 15, 45)
     assert R.run_once(ctx).sent == 2
     ids = {m["To"]: m["Message-ID"] for m in smtp.sent}
-    quiet, replier = "abernathy@stanford.edu", "brightwell@stanford.edu"
     imap.boxes["INBOX"].append(raw_message(frm="Quinn Brightwell <brightwell@stanford.edu>", to="ishaan.ashok123@gmail.com",
-                                           subject="Re: hi", message_id="<reply@stanford.edu>", in_reply_to=ids[replier],
-                                           references=[ids[replier]], body="Happy to talk, let's set up a call."))
+                                           subject="Re: hi", message_id="<reply@stanford.edu>",
+                                           in_reply_to=ids["brightwell@stanford.edu"],
+                                           references=[ids["brightwell@stanford.edu"]], body="Happy to talk, let's set up a call."))
     fake_claude.queue([fake_claude.ok({"label": "positive", "confidence": 0.95})])
-
-    clock.set(2026, 10, 28, 15, 45)                                         # six business days: too early
-    R.run_once(ctx)
-    assert len(smtp.sent) == 2
-    clock.set(2026, 10, 29, 15, 0)                                          # seventh business day
-    R.run_once(ctx)
-    clock.set(2026, 10, 29, 15, 45)
-    R.run_once(ctx)
-    fu1 = smtp.sent[2:]
-    assert len(fu1) == 1 and fu1[0]["To"] == quiet
-    assert fu1[0]["In-Reply-To"] == ids[quiet] and fu1[0]["References"] == ids[quiet]
-    assert fu1[0]["Subject"].startswith("Re: ") and list(fu1[0].iter_attachments()) == []
-    assert "> Dear Professor" in fu1[0].get_body(preferencelist=("plain",)).get_content()
-    assert conn.execute("SELECT COUNT(*) FROM emails WHERE target_id = 2 AND kind != 'initial'").fetchone()[0] == 0
-    assert any(b"[LabReach draft" in raw for _, _, raw in imap.appended)       # a draft for the replier, never a send
-
-    for when in ((2026, 11, 13, 15, 45), (2026, 11, 17, 16, 0), (2026, 11, 17, 16, 45)):     # 10 business days after fu1
+    for when in ((2026, 10, 29, 15, 45), (2026, 11, 17, 16, 45), (2026, 12, 1, 16, 45), (2027, 1, 12, 16, 45)):
         clock.set(*when)
         R.run_once(ctx)
-    fu2 = smtp.sent[3:]
-    assert len(fu2) == 1 and fu2[0]["In-Reply-To"] == fu1[0]["Message-ID"]
-    assert fu2[0]["References"].split() == [ids[quiet], fu1[0]["Message-ID"]]
-    for when in ((2026, 12, 1, 15, 45), (2027, 1, 12, 15, 45), (2027, 2, 2, 15, 45)):
-        clock.set(*when)
-        R.run_once(ctx)
-    assert len(smtp.sent) == 4                                              # 1 initial + 2 follow-ups, ever
+    assert len(smtp.sent) == 2                                              # one initial each; never a follow-up
+    assert conn.execute("SELECT COUNT(*) FROM emails WHERE kind != 'initial'").fetchone()[0] == 0
+    drafts = [raw for _, _, raw in imap.appended if b"[LabReach draft" in raw]
+    assert len(drafts) == 1 and b"In-Reply-To: <reply@stanford.edu>" in drafts[0]       # a draft for the parent, never a send
+    assert conn.execute("SELECT status FROM targets WHERE id = 2").fetchone()[0] == "replied"
 
 
 def test_kill_switch_stops_everything(conn, settings, profile, templates, tmp_path, live_env):

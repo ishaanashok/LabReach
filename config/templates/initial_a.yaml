@@ -37,7 +37,7 @@ subject_formulas:
   S2: "High school student interested in your {topic} work"
   S3: "Junior with prosthetics and robotics experience — could I help on {topic}?"
   S4: "HS student interested in your {topic} — could I help with {task}?"
-credential_pool: [F_RESTEP, F_FTC_CAD, F_FTC_AWARD, F_LUNA, F_GLASSES]
+credential_pool: [F_RESTEP, F_FTC_CAD, F_FTC_AWARD, F_LUNA, F_GLASSES, F_BIOWRAP]
 task_pool:
   - CAD or fixture design
   - 3D-printing and prototyping work

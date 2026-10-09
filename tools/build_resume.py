@@ -25,6 +25,7 @@ ROOT = Path(__file__).resolve().parent.parent
 ACCENT = colors.HexColor("#1b5e63")
 GITHUB = "https://github.com/ishaanashok"
 LUNA_REPO = "https://github.com/ishaanashok/LUNA-TurbiditySensor"
+RESTEP_SITE = "https://projectrestep.netlify.app/"
 
 FONT, BOLD, ITAL = "Helvetica", "Helvetica-Bold", "Helvetica-Oblique"
 SIZE = 9.4
@@ -78,7 +79,8 @@ def build(out: Path) -> None:
           Paragraph("<b>De Anza College</b> (GPA 4.0): CIS Programming Intermediate with C++", body)]
 
     s += section("Experience")
-    s += [row("<b>Project ReStep</b> (501(c)(3) nonprofit) — <i>Founder / Design Lead</i>", "Aug 2025 – Present"),
+    s += [row("<b>Project ReStep</b> (501(c)(3) nonprofit) — <i>Founder / Design Lead</i> ("
+              + link(RESTEP_SITE, "projectrestep.netlify.app") + ")", "Aug 2025 – Present"),
           b("Founded and formally registered a 501(c)(3) nonprofit designing low-cost, adjustable prosthetics "
             "for underserved communities"),
           b("Engineered a modular, one-size-fits-all prosthetic with a screw-base attachment system, cutting per-unit "

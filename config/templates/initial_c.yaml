@@ -36,7 +36,7 @@ subject_formulas:
   S2: "High school student interested in your {topic} work"
   S3: "Junior with machine learning experience — could I help on {topic}?"
   S4: "HS student interested in your {topic} — could I help with {task}?"
-credential_pool: [F_EPA, F_SDMINES, F_INNO, F_GLASSES, F_LGHACKS]
+credential_pool: [F_EPA, F_SDMINES, F_INNO, F_GLASSES, F_LGHACKS, F_BIOWRAP]
 task_pool:
   - a baseline ML experiment
   - data cleaning and labeling

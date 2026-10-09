@@ -78,7 +78,9 @@ def test_unknown_source_unconfirmed_fact_low_confidence(case, profile):
     assert any("unknown source" in f for f in verify_draft(bad, sources, profile, template).failures)
     bad = copy.deepcopy(slots)
     bad.claims[1] = Claim(text=bad.claims[1].text, profile_fact_id="F_BIOWRAP")
-    assert any("unconfirmed" in f for f in verify_draft(bad, sources, profile, template).failures)
+    held = profile.model_copy(deep=True)
+    held.fact("F_BIOWRAP").status = "needs_confirmation"
+    assert any("unconfirmed" in f for f in verify_draft(bad, sources, held, template).failures)
     bad = copy.deepcopy(slots)
     bad.confidence = 0.4
     assert any("confidence" in f for f in verify_draft(bad, sources, profile, template).failures)

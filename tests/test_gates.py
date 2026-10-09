@@ -5,7 +5,6 @@ import pytest
 from labreach import killswitch as ks
 from labreach.gates import run_gates
 from labreach.personalize.generate import draft_initial
-from labreach.run import RunContext, _make_followup
 
 from .helpers import make_sent
 from .world import asker_for, make_ready_target
@@ -133,52 +132,10 @@ def test_gate8_kill_switch(conn, settings, profile, templates, stop_file, ready)
     assert "killswitch" in failing(gates(conn, settings, profile, templates, stop_file))
 
 
-# ---- follow-up gates ---------------------------------------------------------------------------------
+# ---- one initial email per person, ever ---------------------------------------------------------------
 
-def sent_initial(conn, when="2026-10-20T16:30:00"):
-    conn.execute("UPDATE emails SET state='sent', sent_at = ?, message_id = '<i1@gmail.com>', thread_root_message_id='<i1@gmail.com>'",
-                 (when,))
+def test_an_already_sent_email_cannot_be_sent_again(conn, settings, profile, templates, stop_file, ready):
+    conn.execute("UPDATE emails SET state='sent', sent_at='2026-10-20T16:00:00', message_id='<i1@gmail.com>'")
     conn.execute("UPDATE targets SET status = 'active'")
-    conn.commit()
-
-
-def make_fu(conn, settings, profile, templates, stop_file, kind="fu1"):
-    ctx = RunContext(conn=conn, settings=settings, profile=profile, templates=templates, stop_file=stop_file,
-                     out_dir=stop_file.parent / "out", enforce_lock=False)
-    target = conn.execute("SELECT * FROM targets WHERE id = 1").fetchone()
-    initial = conn.execute("SELECT * FROM emails WHERE kind = 'initial'").fetchone()
-    return _make_followup(ctx, target, kind, initial)
-
-
-def test_followup_timing_and_reply_checks(conn, settings, profile, templates, stop_file, ready):
-    sent_initial(conn)
-    make_fu(conn, settings, profile, templates, stop_file)
-    early = datetime(2026, 10, 28, 15, 30, tzinfo=UTC)         # 6 business days after Oct 20
-    due = datetime(2026, 10, 29, 15, 30, tzinfo=UTC)           # 7th business day, Thursday 8:30 PT
-    g = gates(conn, settings, profile, templates, stop_file, early, "fu1")
-    assert "eligibility" in failing(g) and "not due" in g.results["eligibility"][1]
-    assert failing(gates(conn, settings, profile, templates, stop_file, due, "fu1")) == set()
-    conn.execute("UPDATE emails SET replied_at = '2026-10-25T10:00:00' WHERE kind = 'initial'")
-    assert "eligibility" in failing(gates(conn, settings, profile, templates, stop_file, due, "fu1"))
-
-
-def test_followup_skips_bounced_and_enforces_sequence_limit(conn, settings, profile, templates, stop_file, ready):
-    sent_initial(conn)
-    make_fu(conn, settings, profile, templates, stop_file)
-    due = datetime(2026, 10, 29, 15, 30, tzinfo=UTC)
-    conn.execute("UPDATE emails SET bounced_at = '2026-10-21T00:00:00' WHERE kind = 'initial'")
-    assert "eligibility" in failing(gates(conn, settings, profile, templates, stop_file, due, "fu1"))
-    conn.execute("UPDATE emails SET bounced_at = NULL WHERE kind = 'initial'")
-    conn.execute("UPDATE emails SET state='sent', sent_at='2026-10-29T15:30:00', message_id='<f1@gmail.com>' WHERE kind='fu1'")
-    make_fu(conn, settings, profile, templates, stop_file, "fu2")
-    conn.execute("UPDATE emails SET state='sent', sent_at='2026-11-13T16:00:00', message_id='<f2@gmail.com>' WHERE kind='fu2'")
-    g = gates(conn, settings, profile, templates, stop_file, datetime(2026, 11, 17, 16, 0, tzinfo=UTC), "fu2")
-    assert "eligibility" in failing(g) and "sequence limit" in g.results["eligibility"][1]
-
-
-def test_fu1_picks_a_new_fact_not_used_in_the_initial_email(conn, settings, profile, templates, stop_file, ready):
-    sent_initial(conn)
-    fu = make_fu(conn, settings, profile, templates, stop_file)
-    assert "Project ReStep is" not in fu["body"] or "India" in fu["body"]
-    assert "I founded Project ReStep" not in fu["body"] and "Onshape" not in fu["body"]
-    assert fu["subject"] == "Re: " + conn.execute("SELECT subject FROM emails WHERE kind='initial'").fetchone()[0]
+    g = gates(conn, settings, profile, templates, stop_file)
+    assert "eligibility" in failing(g) and "already sent" in g.results["eligibility"][1]

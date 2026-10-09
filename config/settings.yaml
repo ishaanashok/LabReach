@@ -25,8 +25,7 @@ caps:
   send_jitter_minutes: [5, 40]
 
 followups:
-  fu1_business_days: [7, 10]
-  fu2_business_days: [10, 14]
+  remind_after_business_days: 7    # `labreach followups` lists people due for YOUR manual follow-up; the tool never sends one
 
 send_window:
   weekdays: [Tuesday, Wednesday, Thursday]
@@ -66,9 +65,8 @@ fetch:
   min_delay_seconds: 3
   max_delay_seconds: 5
 
-# Initial emails contain NO links (the resume carries them). Follow-ups may use these hosts only.
-link_allowlist:
-  - github.com/ishaanashok
+# Initial emails contain NO links (the resume carries them), so nothing is allowlisted.
+link_allowlist: []
 
 # Domains an official email address may come from.
 email_domain_allowlist:

@@ -140,14 +140,13 @@ def jittered_send_after(after_utc: datetime, tz: str, settings: dict, university
     return candidate
 
 
-# ---- follow-up timing -----------------------------------------------------------------------
+# ---- follow-up reminders (the parent sends every follow-up personally) ------------------------------
 
-def followup_due(kind: str, previous_sent_utc: datetime, now_utc: datetime, tz: str, settings: dict) -> bool:
-    """fu1 is due once 7 business days have passed since the initial email; fu2 once 10 have passed since fu1.
-    Sending then waits for a valid window; waiting longer than the range's upper bound still sends (never earlier)."""
-    low = settings["followups"][f"{kind}_business_days"][0]
+def followup_reminder_due(initial_sent_utc: datetime, now_utc: datetime, tz: str, settings: dict) -> bool:
+    """True once enough business days have passed since the initial email that a manual follow-up makes sense."""
     zone = ZoneInfo(tz)
-    return business_days_between(previous_sent_utc.astimezone(zone).date(), now_utc.astimezone(zone).date()) >= low
+    days = business_days_between(initial_sent_utc.astimezone(zone).date(), now_utc.astimezone(zone).date())
+    return days >= settings["followups"]["remind_after_business_days"]
 
 
 # ---- daily caps --------------------------------------------------------------------------------

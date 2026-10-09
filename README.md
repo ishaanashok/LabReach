@@ -11,10 +11,11 @@ Claude Code CLI (`claude`) that is already logged in on your machine, so it uses
 
 1. **Discovers** professors by itself: official faculty directories, profile and lab pages, hard exclusions
    (quoted with URL), addresses taken only from official pages, recent work verified by re-fetching the page.
-2. **Drafts** from three locked template variants (A mechanical/prosthetics/robotics, B electrical/embedded/sensors,
+2. **Drafts** from three locked initial-email template variants (A mechanical/prosthetics/robotics, B electrical/embedded/sensors,
    C computer engineering/ML). The model writes only two sentences; code fills and checks everything else.
 3. **Gates** every email (8 gates, below). Anything that fails goes to `needs-human` with reasons.
-4. **Sends** from Gmail inside recipient-local windows, with caps and jitter; sends two follow-ups in the same thread.
+4. **Sends** one initial email per person from Gmail inside recipient-local windows, with caps and jitter.
+   **It never sends follow-ups: those are yours.** `labreach followups` lists who is due.
 5. **Watches** replies and bounces read-only, never auto-replies, saves Gmail **drafts** for you, and stops itself
    when anything looks wrong.
 
@@ -47,7 +48,7 @@ for the OAuth (Gmail API) fallback; it is intentionally not built.
 | Step | Command | What you check |
 |---|---|---|
 | 1. Facts | `labreach profile show` → `labreach profile approve` | Every fact is accurate. `needs_confirmation` facts stay out of emails. |
-| 2. Templates | `labreach templates build` (reads `docs/template_preview.txt`), edit `config/templates/*.yaml`, then `labreach templates approve --yes` | Wording. Locks skeletons by hash; any later edit needs approval again. |
+| 2. Templates | `labreach templates build` (reads `docs/template_preview.txt`), edit `config/templates/*.yaml`, then `labreach templates approve --yes` | Wording of the 3 initial-email variants. Locks skeletons by hash; any later edit needs approval again. |
 | 3. Smoke test | `LABREACH_MODE=live labreach smoke-test` | Sends 2 emails **to yourself**; confirms they land in Sent and thread. |
 | 4. Discovery | `labreach discover --max 15` (repeat) → `labreach report --targets` | Keeps ≥30 eligible targets queued, then stops. |
 | 5. Dry run | `labreach run --drafts 10` | Read `out/dry_run/*.txt`. Nothing is sent. |
@@ -67,7 +68,7 @@ Discovery uses the Claude budget (`max_claude_calls_per_day`, default 60): rough
    approved facts; the text that is sent must equal the text that was verified.
 4. **Address provenance**: address on an allowlisted domain, found literally in the stored official-page snippet.
 5. **Eligibility**: not do-not-contact, not already contacted (email or name+university), no other active contact in the
-   same lab, status allows sending; follow-ups also need no reply/bounce and the right timing.
+   same lab, status allows sending, and nothing was already sent to this person.
 6. **Limits**: daily cap (5 → 10, hard max 10), ≤3 per university and 1 per department per day.
 7. **Send window**: Tue-Thu 8:00-10:00 am **recipient-local**, no US holidays, Thanksgiving week, or Dec 12 - Jan 5;
    per-university blackouts in `config/settings.yaml`.
@@ -128,6 +129,7 @@ A lock file (`labreach_data/run.lock`) guarantees two runs never overlap; a lock
 
 ```bash
 labreach report --targets     # queue, statuses, Claude budget, kill switch
+labreach followups            # who is due for YOUR manual follow-up (initial sent, no reply or bounce)
 labreach needs-human          # everything the gates refused, with reasons (never sent, never silently fixed)
 labreach status               # mode, approvals, kill switch
 labreach budget               # Claude calls used today

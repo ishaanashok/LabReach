@@ -58,6 +58,12 @@ def test_conformance_rejects_rewritten_skeleton(templates, profile, settings, to
     assert not ok
 
 
+def unconfirmed(profile, fact_id="F_BIOWRAP"):
+    held = profile.model_copy(deep=True)
+    held.fact(fact_id).status = "needs_confirmation"
+    return held
+
+
 def test_render_rejects_fact_outside_pool_and_unconfirmed(templates, profile, settings, today):
     t, s = templates["initial_a"], SAMPLES["initial_a"]
     bad = copy.deepcopy(s["slots"])
@@ -65,8 +71,9 @@ def test_render_rejects_fact_outside_pool_and_unconfirmed(templates, profile, se
     with pytest.raises(R.RenderError):
         R.render_initial(t, bad, s["recipient"], profile, settings, today, enforce_lock=False)
     bad.credential_fact_ids = ["F_RESTEP", "F_BIOWRAP"]
+    R.render_initial(t, bad, s["recipient"], profile, settings, today, enforce_lock=False)       # confirmed: allowed
     with pytest.raises(R.RenderError):
-        R.render_initial(t, bad, s["recipient"], profile, settings, today, enforce_lock=False)
+        R.render_initial(t, bad, s["recipient"], unconfirmed(profile), settings, today, enforce_lock=False)
     bad.credential_fact_ids, bad.task = ["F_RESTEP", "F_FTC_CAD"], "write the whole paper"
     with pytest.raises(R.RenderError):
         R.render_initial(t, bad, s["recipient"], profile, settings, today, enforce_lock=False)
@@ -88,7 +95,7 @@ def test_lab_manager_needs_human(templates, profile, settings, today):
 
 
 def test_profile_has_no_tamil_nadu_and_no_private_details(profile):
-    blob = " ".join(f.email_phrase + (f.followup_phrase or "") for f in profile.facts).lower()
+    blob = " ".join(f.email_phrase for f in profile.facts).lower()
     assert "tamil" not in blob
     for private in ("citizen", "510", "3.9", "birth"):
         assert private not in blob

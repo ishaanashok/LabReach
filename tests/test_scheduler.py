@@ -55,15 +55,13 @@ def test_next_window_and_jitter(settings):
         assert sch.in_send_window(send, tz, settings)
 
 
-def test_business_day_math_and_followups(settings):
+def test_business_day_math_and_followup_reminders(settings):
     assert sch.add_business_days(date(2026, 10, 9), 1) == date(2026, 10, 13)    # skips weekend + Columbus Day
     assert sch.business_days_between(date(2026, 10, 13), date(2026, 10, 22)) == 7
     tz = "America/Los_Angeles"
     sent = utc(2026, 10, 13, 15, 30)
-    assert not sch.followup_due("fu1", sent, utc(2026, 10, 21, 15, 30), tz, settings)
-    assert sch.followup_due("fu1", sent, utc(2026, 10, 22, 15, 30), tz, settings)
-    assert not sch.followup_due("fu2", sent, utc(2026, 10, 26, 15, 30), tz, settings)   # needs 10
-    assert sch.followup_due("fu2", sent, utc(2026, 10, 27, 15, 30), tz, settings)
+    assert not sch.followup_reminder_due(sent, utc(2026, 10, 21, 15, 30), tz, settings)
+    assert sch.followup_reminder_due(sent, utc(2026, 10, 22, 15, 30), tz, settings)
 
 
 def test_daily_limits_pilot_ramp_and_hard_cap(conn, settings):

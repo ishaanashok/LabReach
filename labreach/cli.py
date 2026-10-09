@@ -176,15 +176,6 @@ def _preview_text() -> str:
         report = lint_mod.lint_email(r.subject, r.body, ctx)
         out += [f"===== {tid}: {template['description']} =====", f"Subject: {r.subject}", "", r.body, "", r.signature, "",
                 f"[{report.word_count} words | lint {'PASS' if report.ok else 'FAIL: ' + '; '.join(i.rule for i in report.issues)}]\n"]
-    for tid in ("followup_1", "followup_2"):
-        template = templates[tid]
-        sample = SAMPLES["initial_a"]
-        r = render_mod.render_followup(template, sample["recipient"], profile, task="CAD or fixture design",
-                                       value_fact_id="F_YBVC", enforce_lock=False)
-        report = lint_mod.lint_email(None, r.body, lint_mod.LintContext(kind=template["kind"],
-                                     recipient_last=sample["recipient"].last, banned_claims=profile.banned_claims))
-        out += [f"===== {tid}: {template['description']} =====", r.body, "", r.signature, "",
-                f"[lint {'PASS' if report.ok else 'FAIL: ' + '; '.join(i.rule for i in report.issues)}]\n"]
     return "\n".join(out)
 
 
@@ -355,6 +346,31 @@ def report(targets: bool = typer.Option(False, "--targets", help="List the top e
             t.add_row(str(r["id"]), r["name"], r["role"], r["university"], str(r["fit_score"]), r["variant"], r["status"],
                       r["email_source_url"] or "")
         console.print(t)
+
+
+@app.command()
+def followups() -> None:
+    """Who is due for YOUR manual follow-up: initial sent, no reply or bounce yet. LabReach never sends follow-ups."""
+    from zoneinfo import ZoneInfo
+
+    from .scheduler import business_days_between, followup_reminder_due
+    conn = _conn()
+    settings = load_settings()
+    now = datetime.now(UTC)
+    table = Table("name", "address", "university", "sent", "business days", "subject", "due?")
+    rows = conn.execute(
+        "SELECT t.name, t.email, t.university, t.timezone, e.sent_at, e.subject FROM emails e JOIN targets t ON t.id = e.target_id "
+        "WHERE e.kind = 'initial' AND e.sent_at IS NOT NULL AND e.replied_at IS NULL AND e.bounced_at IS NULL "
+        "AND t.status = 'active' ORDER BY e.sent_at").fetchall()
+    for r in rows:
+        sent = datetime.fromisoformat(r["sent_at"]).replace(tzinfo=UTC)
+        tz = r["timezone"] or settings["timezone"]
+        days = business_days_between(sent.astimezone(ZoneInfo(tz)).date(), now.astimezone(ZoneInfo(tz)).date())
+        due = followup_reminder_due(sent, now, tz, settings)
+        table.add_row(r["name"], r["email"], r["university"], r["sent_at"][:10], str(days), r["subject"] or "",
+                      "[bold]DUE[/bold]" if due else "")
+    console.print(table if rows else "No sent emails are waiting on a reply.")
+    console.print("LabReach never sends follow-ups: you write and send them. Check Gmail Drafts first; replies appear there.")
 
 
 @app.command("needs-human")

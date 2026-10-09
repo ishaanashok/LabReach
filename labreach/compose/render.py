@@ -125,21 +125,6 @@ def render_initial(template: dict, slots: DraftSlots, r: Recipient, profile: Stu
                     template_id=template["id"])
 
 
-def render_followup(template: dict, r: Recipient, profile: StudentProfile, *, task: str,
-                    value_fact_id: str | None = None, enforce_lock: bool = True) -> Rendered:
-    if enforce_lock:
-        verify_lock(template)
-    values = {"greeting": greeting(template, r), "task": task}
-    if template["kind"] == "fu1":
-        fact = profile.usable(value_fact_id or "")
-        if fact is None or not fact.followup_phrase:
-            raise RenderError(f"fact {value_fact_id} has no usable follow-up phrasing")
-        values["new_value"] = fact.followup_phrase
-    body = fill(template["skeleton"], values, set(values))
-    return Rendered(subject=None, body=body, signature=signature(profile), personalization="",
-                    slot_values=values, template_id=template["id"])
-
-
 def _skeleton_regex(skeleton: str) -> re.Pattern[str]:
     parts = SLOT_RE.split(skeleton.strip())
     pattern = "".join(re.escape(t) if i % 2 == 0 else f"(?P<{t}>.+?)" for i, t in enumerate(parts))

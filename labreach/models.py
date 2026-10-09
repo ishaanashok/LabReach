@@ -35,17 +35,11 @@ class DraftSlots(BaseModel):
     confidence: float = Field(ge=0, le=1)
 
 
-class FollowupSlots(BaseModel):
-    task: str
-    value_fact_id: str | None = None
-
-
 class Fact(BaseModel):
     id: str
     category: str
     resume_line: str                     # where on the resume this comes from (audit)
     email_phrase: str                    # the ONLY wording emails may use for this fact
-    followup_phrase: str | None = None   # wording for FU1 "one new piece of value"
     tags: list[str] = []
     numbers: list[str] = []              # numeric strings this fact legitimately contains
     status: Literal["approved_pending", "needs_confirmation"] = "approved_pending"

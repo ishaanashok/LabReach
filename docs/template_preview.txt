@@ -68,25 +68,3 @@ Junior, American High School (Fremont, CA)
 ishaan.ashok123@gmail.com
 
 [165 words | lint PASS]
-
-===== followup_1: First follow-up, 2-4 sentences, one new true piece of value =====
-Dear Professor Rivera,
-
-I wanted to follow up on my note below and share one more relevant detail. Project LUNA placed in the top 15 of roughly 300 teams internationally at the Youth Business Venture Competition, where I presented to judges at Stanford. I'd still be glad to help with CAD or fixture design if there's a fit, and I completely understand if the timing isn't right.
-
-Ishaan Ashok
-Junior, American High School (Fremont, CA)
-ishaan.ashok123@gmail.com
-
-[lint PASS]
-
-===== followup_2: Final follow-up, 1-2 sentences =====
-Dear Professor Rivera,
-
-One last brief follow-up: if anyone in your group could use help with CAD or fixture design this year or next summer, I'd be grateful to hear. Either way, thank you for your time.
-
-Ishaan Ashok
-Junior, American High School (Fremont, CA)
-ishaan.ashok123@gmail.com
-
-[lint PASS]

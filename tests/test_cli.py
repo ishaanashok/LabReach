@@ -27,11 +27,11 @@ def test_init_status_and_profile_gate():
     out = run("status").output
     assert "dry-run" in out and "profile approved" in out
     shown = run("profile", "show").output
-    assert "F_RESTEP" in out + shown and "needs_confirmation" in shown          # BioWrap held back
+    assert "F_RESTEP" in out + shown and "F_BIOWRAP" in shown
     result = run("run")
     assert result.exit_code == 1 and "not approved" in result.output            # no run before the facts are approved
     approved = run("profile", "approve").output
-    assert "F_BIOWRAP" in approved and "excluded from" in approved
+    assert "Profile approved" in approved and "none" in approved          # nothing is waiting for confirmation
 
 
 def test_dry_run_on_empty_queue_is_a_clean_no_op():
@@ -95,3 +95,17 @@ def test_api_key_warning(monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
     assert "stripped" in run("budget").output
     assert os.environ["ANTHROPIC_API_KEY"] == "sk-test"      # we strip it from subprocesses only
+
+
+def test_followups_lists_who_is_due_and_sends_nothing(tmp_path):
+    import sqlite3
+    run("init")
+    db = sqlite3.connect(tmp_path / "data" / "labreach.db")
+    db.execute("INSERT INTO targets (id, name, name_norm, university, university_norm, email, status, timezone) VALUES "
+               "(1,'Alex Rivera','alexrivera','Stanford University','stanford university','rivera@stanford.edu','active','America/Los_Angeles'),"
+               "(2,'Quinn Brightwell','quinnbrightwell','MIT','mit','b@mit.edu','replied','America/New_York')")
+    db.execute("INSERT INTO emails (target_id, kind, state, subject, sent_at, message_id) VALUES (1,'initial','sent','Question about X','2026-01-13T16:00:00','<a@gmail.com>')")
+    db.execute("INSERT INTO emails (target_id, kind, state, subject, sent_at, message_id, replied_at) VALUES (2,'initial','sent','Hi','2026-01-13T16:00:00','<b@gmail.com>','2026-01-15T10:00:00')")
+    db.commit()
+    out = runner.invoke(app, ["followups"], env={"COLUMNS": "220"}).output
+    assert "Rivera" in out and "DUE" in out and "Brightwell" not in out and "never sends follow-ups" in out
